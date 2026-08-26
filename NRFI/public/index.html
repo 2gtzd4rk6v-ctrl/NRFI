@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>NRFI + Kalshi</title><style>
+body{margin:0;background:#07111f;color:#eef5ff;font:15px system-ui}.wrap{max-width:1150px;margin:auto;padding:30px 18px}h1{margin:0;font-size:38px}.sub{color:#8fa5bd;margin:5px 0 25px}.board{display:grid;gap:12px}.g{background:#0d1b2d;border:1px solid #203650;border-radius:16px;padding:18px;display:grid;grid-template-columns:1fr auto}.score{font-size:38px;font-weight:900}.green{color:#62e7a5}.yellow{color:#f0c86b}.red{color:#ff8f9b}.edge{font-size:18px;font-weight:800}.muted{color:#8fa5bd;font-size:12px}.tag{display:inline-block;border:1px solid #29415e;border-radius:99px;padding:5px 8px;margin:10px 5px 0 0;color:#bcd0e5;font-size:11px}@media(max-width:650px){.g{grid-template-columns:1fr}}
+</style></head><body><main class=wrap><h1>NRFI + Kalshi</h1><div class=sub>Model probability vs. live Kalshi first-inning market</div><section id=b class=board>Loading…</section></main>
+<script>
+async function load(){
+ const d=await fetch('/api/games').then(r=>r.json());
+ b.innerHTML=(d.games||[]).map(g=>{
+  let e=g.edge||{}, edge=e.raw_edge;
+  let cls=edge>=.05?'green':edge>=.02?'yellow':'red';
+  return `<article class=g><div><b>${g.away} @ ${g.home}</b><div class=muted>${g.time||''}</div>
+  <div>${(g.factors||[]).map(x=>`<span class=tag>${x}</span>`).join('')}</div>
+  <div class=muted style="margin-top:12px">Kalshi YES bid: ${e.kalshi_yes_bid!=null?(e.kalshi_yes_bid*100).toFixed(0)+'¢':'—'}</div></div>
+  <div><div class="score ${g.score>=80?'green':g.score>=65?'yellow':'red'}">${g.score}</div>
+  <div class=muted>Model ${(g.probability*100).toFixed(1)}%</div>
+  <div class="edge ${cls}" style="margin-top:10px">${edge!=null?(edge*100).toFixed(1)+'% edge':'—'}</div>
+  <div class=muted>${e.tradable?'TRADABLE':'REFERENCE ONLY'}</div></div></article>`}).join('')||'<div class=muted>No games loaded.</div>'
+}
+load();setInterval(load,30000)
+</script></body></html>
